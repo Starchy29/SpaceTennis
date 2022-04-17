@@ -12,6 +12,7 @@
 #include "Material.h"
 #include "Lights.h"
 #include "Sky.h"
+#include "Player.h"
 
 class Game 
 	: public DXCore
@@ -28,11 +29,19 @@ public:
 	void Update(float deltaTime, float totalTime);
 	void Draw(float deltaTime, float totalTime);
 
+	const int COURT_HALF_WIDTH = 5;
+	const int COURT_HALF_HEIGHT = 14;
+	const int AREA_HALF_WIDTH = 8;
+	const int AREA_HALF_HEIGHT = 17;
+
 private:
+	Entity* court;
+	Player* player;
+	Entity* net;
+
 	std::shared_ptr<Mesh> cube;
 	std::shared_ptr<Mesh> sphere;
 	std::shared_ptr<Mesh> spiral;
-	std::vector<Entity*> entities;
 	std::shared_ptr<Camera> worldCam;
 	std::shared_ptr<Material> blue;
 	std::shared_ptr<Material> red;

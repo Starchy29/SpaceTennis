@@ -16,7 +16,7 @@ public:
 	std::shared_ptr<Mesh> GetMesh();
 	std::shared_ptr<Material> GetMaterial();
 
-private:
+protected:
 	Transform transform;
 	std::shared_ptr<Mesh> mesh;
 	std::shared_ptr<Material> material;

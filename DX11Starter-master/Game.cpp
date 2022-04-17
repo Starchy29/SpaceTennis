@@ -38,20 +38,10 @@ Game::Game(HINSTANCE hInstance)
 	ambientColor = DirectX::XMFLOAT3(0.2f, 0.2f, 0.2f);
 }
 
-// --------------------------------------------------------
-// Destructor - Clean up anything our game has created:
-//  - Release all DirectX objects created here
-//  - Delete any objects to prevent memory leaks
-// --------------------------------------------------------
 Game::~Game()
 {
-	// Note: Since we're using smart pointers (ComPtr),
-	// we don't need to explicitly clean up those DirectX objects
-	// - If we weren't using smart pointers, we'd need
-	//   to call Release() on each DirectX object created in Game
-	for (Entity* entity : entities) {
-		delete entity;
-	}
+	delete court;
+	delete player;
 }
 
 // --------------------------------------------------------
@@ -71,7 +61,9 @@ void Game::Init()
 	// Essentially: "What kind of shape should the GPU draw with our data?"
 	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	worldCam = std::make_shared<Camera>((float)this->width / this->height, XMFLOAT3(0, 0, -5));
+	worldCam = std::make_shared<Camera>((float)this->width / this->height, XMFLOAT3(0, 15, -18));
+	worldCam->GetTransform()->SetPitchYawRoll(0.8f, 0.0f, 0.0f);
+	worldCam->UpdateViewMatrix();
 
 	dirLight = {};
 	dirLight.type = LIGHT_TYPE_DIRECTIONAL;
@@ -208,17 +200,17 @@ void Game::CreateBasicGeometry()
 
 	this->red.get()->SetUVScale(4.0f);
 
-	entities = std::vector<Entity*>();
-	Entity* cubeEntity = new Entity(cube, this->red);
-	cubeEntity->GetTransform()->MoveAbsolute(-5, 0, 0);
-	entities.push_back(cubeEntity);
+	court = new Entity(cube, this->blue);
+	court->GetTransform()->SetScale(AREA_HALF_WIDTH * 2, 1, AREA_HALF_HEIGHT);
+	court->GetTransform()->SetPosition(0, -0.5f, 0);
 
-	Entity* sphereEntity = new Entity(sphere, this->blue);
-	entities.push_back(sphereEntity);
+	player = new Player(sphere, this->red);
+	//player->GetTransform()->SetScale(1, 2, 1);
+	player->GetTransform()->SetPosition(0, 1.5, 0);
 
-	Entity* spiralEntity = new Entity(spiral, this->green);
-	spiralEntity->GetTransform()->MoveAbsolute(5, 0, 0);
-	entities.push_back(spiralEntity);
+	net = new Entity(cube, this->red);
+	net->GetTransform()->SetScale(COURT_HALF_WIDTH * 2, 1.0f, 1.0f);
+	net->GetTransform()->SetPosition(0, 1.5f, 0);
 
 	sky = new Sky(cube, samplerState, device, skyVertexShader, skyPixelShader, skyBox);
 }
@@ -246,11 +238,7 @@ void Game::Update(float deltaTime, float totalTime)
 	if (Input::GetInstance().KeyDown(VK_ESCAPE))
 		Quit();
 
-	worldCam->Update(deltaTime);
-
-	for(Entity* entity : entities) {
-		entity->GetTransform()->Rotate(0.0f, 0.0f, 0.1f * deltaTime);
-	}
+	player->Update(deltaTime);
 }
 
 // --------------------------------------------------------
@@ -296,10 +284,12 @@ void Game::Draw(float deltaTime, float totalTime)
 		&yellowPoint,   // The address of the data to set 
 		sizeof(Light));  // The size of the data (the whole struct!) to set
 
-	for(Entity* entity : entities) {
-		entity->GetMaterial()->GetPixelShader()->SetFloat3("ambient", ambientColor);
-		entity->Draw(context, worldCam);
-	}
+	court->GetMaterial()->GetPixelShader()->SetFloat3("ambient", ambientColor);
+	court->Draw(context, worldCam);
+	player->GetMaterial()->GetPixelShader()->SetFloat3("ambient", ambientColor);
+	player->Draw(context, worldCam);
+	net->GetMaterial()->GetPixelShader()->SetFloat3("ambient", ambientColor);
+	net->Draw(context, worldCam);
 
 	sky->Draw(context, worldCam);
 

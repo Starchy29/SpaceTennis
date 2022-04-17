@@ -11,39 +11,6 @@ Camera::Camera(float aspectRatio, DirectX::XMFLOAT3 position)
 	UpdateProjectionMatrix(aspectRatio);
 }
 
-void Camera::Update(float dt)
-{
-	Input& input = Input::GetInstance();
-
-	float speed = 10.0f;
-
-	// keyboard movement
-	if(input.KeyDown('W')) { transform.MoveRelative(0, 0, speed * dt); }
-	if(input.KeyDown('S')) { transform.MoveRelative(0, 0, -speed * dt); }
-	if(input.KeyDown('A')) { transform.MoveRelative(-speed * dt, 0, 0); }
-	if(input.KeyDown('D')) { transform.MoveRelative(speed * dt, 0, 0); }
-	if(input.KeyDown(VK_SPACE)) { transform.MoveAbsolute(0, speed * dt, 0); }
-	if(input.KeyDown(VK_LSHIFT)) { transform.MoveAbsolute(0, -speed * dt, 0); }
-
-	// mouse aim
-	float sensitivity = 0.5f;
-	if(input.MouseLeftDown()) {
-		int cursorMovementX = input.GetMouseXDelta();
-		int cursorMovementY = input.GetMouseYDelta();
-		transform.Rotate(sensitivity * cursorMovementY * dt, sensitivity * cursorMovementX * dt, 0);
-
-		// limit vertical to straight up and down
-		if(transform.GetPitchYawRoll().x > XM_PIDIV2) {
-			transform.SetPitchYawRoll(XM_PIDIV2, transform.GetPitchYawRoll().y, transform.GetPitchYawRoll().z);
-		}
-		else if(transform.GetPitchYawRoll().x < -XM_PIDIV2) {
-			transform.SetPitchYawRoll(-XM_PIDIV2, transform.GetPitchYawRoll().y, transform.GetPitchYawRoll().z);
-		}
-	}
-
-	UpdateViewMatrix();
-}
-
 void Camera::UpdateViewMatrix()
 {
 	XMFLOAT3 position = transform.GetPosition();
@@ -69,4 +36,9 @@ DirectX::XMFLOAT4X4 Camera::GetProjection()
 DirectX::XMFLOAT3 Camera::GetPosition()
 {
 	return transform.GetPosition();
+}
+
+Transform* Camera::GetTransform()
+{
+	return &transform;
 }
