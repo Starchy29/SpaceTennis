@@ -29,13 +29,13 @@ public:
 	void Update(float deltaTime, float totalTime);
 	void Draw(float deltaTime, float totalTime);
 
-	const int COURT_HALF_WIDTH = 5;
-	const int COURT_HALF_HEIGHT = 14;
-	const int AREA_HALF_WIDTH = 8;
-	const int AREA_HALF_HEIGHT = 17;
+	static const int COURT_HALF_WIDTH = 8;
+	static const int COURT_HALF_HEIGHT = 14;
+	static const int AREA_HALF_WIDTH = 20;
+	static const int AREA_HALF_HEIGHT = 17;
 
 private:
-	Entity* court;
+	std::vector<Entity*> court;
 	Player* player;
 	Entity* net;
 

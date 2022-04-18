@@ -40,8 +40,11 @@ Game::Game(HINSTANCE hInstance)
 
 Game::~Game()
 {
-	delete court;
+	for(Entity* entity : court) {
+		delete entity;
+	}
 	delete player;
+	delete net;
 }
 
 // --------------------------------------------------------
@@ -62,7 +65,7 @@ void Game::Init()
 	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	worldCam = std::make_shared<Camera>((float)this->width / this->height, XMFLOAT3(0, 15, -18));
-	worldCam->GetTransform()->SetPitchYawRoll(0.8f, 0.0f, 0.0f);
+	worldCam->GetTransform()->SetPitchYawRoll(0.6f, 0.0f, 0.0f);
 	worldCam->UpdateViewMatrix();
 
 	dirLight = {};
@@ -200,16 +203,77 @@ void Game::CreateBasicGeometry()
 
 	this->red.get()->SetUVScale(4.0f);
 
-	court = new Entity(cube, this->blue);
-	court->GetTransform()->SetScale(AREA_HALF_WIDTH * 2, 1, AREA_HALF_HEIGHT);
-	court->GetTransform()->SetPosition(0, -0.5f, 0);
+	float cubeScaler = 0.502f; // value to make cube have radius 1
+	float lineWidth = 0.2f;
+	float alleyWidth = 3.0f;
+	float lineHeight = -0.49; // lines are slightly above ground;
+
+	court = std::vector<Entity*>();
+	Entity* courtBase = new Entity(cube, this->blue);
+	courtBase->GetTransform()->Scale(cubeScaler, cubeScaler, cubeScaler);
+	courtBase->GetTransform()->Scale(AREA_HALF_WIDTH * 2, 1, 2 * AREA_HALF_HEIGHT);
+	courtBase->GetTransform()->SetPosition(0, -0.5f, 0);
+	court.push_back(courtBase);
+
+	Entity* leftSingles = new Entity(cube, this->red);
+	leftSingles->GetTransform()->Scale(cubeScaler, cubeScaler, cubeScaler);
+	leftSingles->GetTransform()->Scale(lineWidth, 1, COURT_HALF_HEIGHT * 2);
+	leftSingles->GetTransform()->SetPosition(-COURT_HALF_WIDTH, lineHeight, 0);
+	court.push_back(leftSingles);
+
+	Entity* rightSingles = new Entity(cube, this->red);
+	rightSingles->GetTransform()->Scale(cubeScaler, cubeScaler, cubeScaler);
+	rightSingles->GetTransform()->Scale(lineWidth, 1, COURT_HALF_HEIGHT * 2);
+	rightSingles->GetTransform()->SetPosition(COURT_HALF_WIDTH, lineHeight, 0);
+	court.push_back(rightSingles);
+
+	Entity* leftDoubles = new Entity(cube, this->red);
+	leftDoubles->GetTransform()->Scale(cubeScaler, cubeScaler, cubeScaler);
+	leftDoubles->GetTransform()->Scale(lineWidth, 1, COURT_HALF_HEIGHT * 2);
+	leftDoubles->GetTransform()->SetPosition(-COURT_HALF_WIDTH - alleyWidth, lineHeight, 0);
+	court.push_back(leftDoubles);
+
+	Entity* rightDoubles = new Entity(cube, this->red);
+	rightDoubles->GetTransform()->Scale(cubeScaler, cubeScaler, cubeScaler);
+	rightDoubles->GetTransform()->Scale(lineWidth, 1, COURT_HALF_HEIGHT * 2);
+	rightDoubles->GetTransform()->SetPosition(COURT_HALF_WIDTH + alleyWidth, lineHeight, 0);
+	court.push_back(rightDoubles);
+
+	Entity* tLine = new Entity(cube, this->red);
+	tLine->GetTransform()->Scale(cubeScaler, cubeScaler, cubeScaler);
+	tLine->GetTransform()->Scale(lineWidth, 1, COURT_HALF_HEIGHT);
+	tLine->GetTransform()->SetPosition(0, lineHeight, 0);
+	court.push_back(tLine);
+
+	Entity* backBase = new Entity(cube, this->red);
+	backBase->GetTransform()->Scale(cubeScaler, cubeScaler, cubeScaler);
+	backBase->GetTransform()->Scale(COURT_HALF_WIDTH * 2 + 2 * alleyWidth, 1, lineWidth);
+	backBase->GetTransform()->SetPosition(0, lineHeight, -COURT_HALF_HEIGHT);
+	court.push_back(backBase);
+
+	Entity* farBase = new Entity(cube, this->red);
+	farBase->GetTransform()->Scale(cubeScaler, cubeScaler, cubeScaler);
+	farBase->GetTransform()->Scale(COURT_HALF_WIDTH * 2 + 2 * alleyWidth, 1, lineWidth);
+	farBase->GetTransform()->SetPosition(0, lineHeight, COURT_HALF_HEIGHT);
+	court.push_back(farBase);
+
+	Entity* backServe = new Entity(cube, this->red);
+	backServe->GetTransform()->Scale(cubeScaler, cubeScaler, cubeScaler);
+	backServe->GetTransform()->Scale(COURT_HALF_WIDTH * 2, 1, lineWidth);
+	backServe->GetTransform()->SetPosition(0, lineHeight, -COURT_HALF_HEIGHT / 2);
+	court.push_back(backServe);
+
+	Entity* farServe = new Entity(cube, this->red);
+	farServe->GetTransform()->Scale(cubeScaler, cubeScaler, cubeScaler);
+	farServe->GetTransform()->Scale(COURT_HALF_WIDTH * 2, 1, lineWidth);
+	farServe->GetTransform()->SetPosition(0, lineHeight, COURT_HALF_HEIGHT / 2);
+	court.push_back(farServe);
 
 	player = new Player(sphere, this->red);
-	//player->GetTransform()->SetScale(1, 2, 1);
-	player->GetTransform()->SetPosition(0, 1.5, 0);
 
 	net = new Entity(cube, this->red);
-	net->GetTransform()->SetScale(COURT_HALF_WIDTH * 2, 1.0f, 1.0f);
+	net->GetTransform()->Scale(cubeScaler, cubeScaler, cubeScaler);
+	net->GetTransform()->Scale(28, 3.0f, 0.2f);
 	net->GetTransform()->SetPosition(0, 1.5f, 0);
 
 	sky = new Sky(cube, samplerState, device, skyVertexShader, skyPixelShader, skyBox);
@@ -284,8 +348,10 @@ void Game::Draw(float deltaTime, float totalTime)
 		&yellowPoint,   // The address of the data to set 
 		sizeof(Light));  // The size of the data (the whole struct!) to set
 
-	court->GetMaterial()->GetPixelShader()->SetFloat3("ambient", ambientColor);
-	court->Draw(context, worldCam);
+	for(Entity* entity : court) {
+		entity->GetMaterial()->GetPixelShader()->SetFloat3("ambient", ambientColor);
+		entity->Draw(context, worldCam);
+	}
 	player->GetMaterial()->GetPixelShader()->SetFloat3("ambient", ambientColor);
 	player->Draw(context, worldCam);
 	net->GetMaterial()->GetPixelShader()->SetFloat3("ambient", ambientColor);
