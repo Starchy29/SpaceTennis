@@ -8,6 +8,8 @@ public:
 	void UpdateProjectionMatrix(float aspectRatio);
 	void UpdateViewMatrix();
 
+	void Update(DirectX::XMFLOAT3 playerPosition);
+
 	DirectX::XMFLOAT4X4 GetView();
 	DirectX::XMFLOAT4X4 GetProjection();
 	DirectX::XMFLOAT3 GetPosition();

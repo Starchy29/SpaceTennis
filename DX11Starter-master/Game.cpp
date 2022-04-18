@@ -31,8 +31,8 @@ Game::Game(HINSTANCE hInstance)
 {
 #if defined(DEBUG) || defined(_DEBUG)
 	// Do we want a console window?  Probably only in debug mode
-	CreateConsoleWindow(500, 120, 32, 120);
-	printf("Console window created successfully.  Feel free to printf() here.\n");
+	//CreateConsoleWindow(500, 120, 32, 120);
+	//printf("Console window created successfully.  Feel free to printf() here.\n");
 #endif
 
 	ambientColor = DirectX::XMFLOAT3(0.2f, 0.2f, 0.2f);
@@ -45,6 +45,7 @@ Game::~Game()
 	}
 	delete player;
 	delete net;
+	delete sky;
 }
 
 // --------------------------------------------------------
@@ -269,7 +270,8 @@ void Game::CreateBasicGeometry()
 	farServe->GetTransform()->SetPosition(0, lineHeight, COURT_HALF_HEIGHT / 2);
 	court.push_back(farServe);
 
-	player = new Player(sphere, this->red);
+	player = new Player(cube, this->red);
+	player->GetTransform()->Scale(cubeScaler, 2 * cubeScaler, cubeScaler);
 
 	net = new Entity(cube, this->red);
 	net->GetTransform()->Scale(cubeScaler, cubeScaler, cubeScaler);
@@ -303,6 +305,7 @@ void Game::Update(float deltaTime, float totalTime)
 		Quit();
 
 	player->Update(deltaTime);
+	worldCam->Update(player->GetTransform()->GetPosition());
 }
 
 // --------------------------------------------------------

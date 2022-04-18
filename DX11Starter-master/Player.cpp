@@ -3,6 +3,8 @@
 #include "Transform.h"
 #include "Game.h"
 
+using namespace DirectX;
+
 void Player::Update(float dt)
 {
 	Input& input = Input::GetInstance();
@@ -13,10 +15,10 @@ void Player::Update(float dt)
 
 	// accelerate from input
 	Vector3 moveDirection = Vector3();
-	if (input.KeyDown('W')) { moveDirection.z += 1; }
-	if (input.KeyDown('S')) { moveDirection.z -= 1; }
-	if (input.KeyDown('A')) { moveDirection.x -= 1; }
-	if (input.KeyDown('D')) { moveDirection.x += 1; }
+	if (input.KeyDown(VK_UP)) { moveDirection.z += 1; }
+	if (input.KeyDown(VK_DOWN)) { moveDirection.z -= 1; }
+	if (input.KeyDown(VK_LEFT)) { moveDirection.x -= 1; }
+	if (input.KeyDown(VK_RIGHT)) { moveDirection.x += 1; }
 
 	if(!moveDirection.Equals(Vector3())) {
 		moveDirection.SetLength(acceleration);

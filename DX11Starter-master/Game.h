@@ -29,10 +29,10 @@ public:
 	void Update(float deltaTime, float totalTime);
 	void Draw(float deltaTime, float totalTime);
 
-	static const int COURT_HALF_WIDTH = 8;
+	static const int COURT_HALF_WIDTH = 10;
 	static const int COURT_HALF_HEIGHT = 14;
 	static const int AREA_HALF_WIDTH = 20;
-	static const int AREA_HALF_HEIGHT = 17;
+	static const int AREA_HALF_HEIGHT = 18;
 
 private:
 	std::vector<Entity*> court;
@@ -80,4 +80,3 @@ private:
 
 	Sky* sky;
 };
-
