@@ -3,7 +3,7 @@
 #include "Entity.h"
 
 // the tennis ball
-class Ball : Entity
+class Ball : public Entity
 {
 public:
 	Ball(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material);

@@ -5,7 +5,7 @@
 
 using namespace DirectX;
 
-void Player::Update(float dt)
+void Player::Update(float dt, Ball* ball)
 {
 	Input& input = Input::GetInstance();
 	float maxSpeed = 13.0f;
@@ -17,8 +17,8 @@ void Player::Update(float dt)
 	Vector3 moveDirection = Vector3();
 	if (input.KeyDown(VK_UP)) { moveDirection.z += 1; }
 	if (input.KeyDown(VK_DOWN)) { moveDirection.z -= 1; }
-	if (input.KeyDown(VK_LEFT)) { moveDirection.x -= 1; }
-	if (input.KeyDown(VK_RIGHT)) { moveDirection.x += 1; }
+	if (input.KeyDown(VK_LEFT)) { moveDirection.x -= 1; facingRight = false; }
+	if (input.KeyDown(VK_RIGHT)) { moveDirection.x += 1; facingRight = true;  }
 
 	if(!moveDirection.Equals(Vector3())) {
 		moveDirection.SetLength(acceleration);
@@ -79,9 +79,36 @@ void Player::Update(float dt)
 	else if(position.z < -Game::AREA_HALF_HEIGHT) { // back wall
 		transform.SetPosition(position.x, position.y, -Game::AREA_HALF_HEIGHT);
 	}
+
+	// swing at ball
+	if(input.KeyPress('W') && ball != nullptr) {
+		swingCooldown = 1.0f;
+
+		float reach = 2.0f;
+		if(!facingRight) {
+			reach *= -1; // swing left instead
+		}
+
+		// check sphere collision
+		XMFLOAT3 ballPosition = ball->GetTransform()->GetPosition();
+		float dx = ballPosition.x - position.x - reach;
+		float dy = ballPosition.y - position.y;
+		float dz = ballPosition.z - position.z;
+		float distSquared = dx * dx + dy * dy + dz * dz;
+		if(distSquared < 8) {
+			// hit ball
+			ball->Hit(Vector3(0, 10, 15), true);
+		}
+	}
+
+	if(swingCooldown > 0) {
+		swingCooldown -= dt;
+	}
 }
 
 Player::Player(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material) : Entity(mesh, material) {
 	velocity = Vector3(0.0f, 0.0f, 0.0f);
 	transform.SetPosition(0.0f, 1.5f, 0.0f);
+	facingRight = true;
+	swingCooldown = 0;
 }
