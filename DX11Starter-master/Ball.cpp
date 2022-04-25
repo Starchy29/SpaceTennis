@@ -5,7 +5,8 @@ Ball::Ball(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material) : Ent
 {
 	playerHit = false;
 	hasBounced = false;
-	transform.SetPosition(0, 5, -6);
+	active = false;
+	transform.SetScale(0.5f, 0.5f, 0.5f);
 }
 
 void Ball::Hit(Vector3 hit, bool fromPlayer)
@@ -32,7 +33,27 @@ void Ball::Update(float deltaTime)
 		transform.SetPosition(position.x, minY, position.z);
 		velocity.y *= -1;
 
-		// check if bounced out of court
+		if(hasBounced) {
+			// point ends from double bounce
+			active = false;
+		}
+		else {
+			hasBounced = true;
+
+			// check if bounced out of court
+			float buffer = 0.5f;
+			if(position.x < -Game::COURT_HALF_WIDTH - buffer// out left
+				|| position.x > Game::COURT_HALF_WIDTH + buffer // out right
+				|| position.z < -Game::COURT_HALF_HEIGHT - buffer// out back
+				|| position.z > Game::COURT_HALF_HEIGHT + buffer// out front
+			) {
+				active = false;
+			}
+
+			if(playerHit && position.z < 0 || !playerHit && position.z > 0) { // land in own court
+				active = false;
+			}
+		}
 	}
 
 	// temp: bounce off back wall
@@ -41,4 +62,22 @@ void Ball::Update(float deltaTime)
 	}
 
 	// check for net collision
+	if(abs(position.z) < 0.3f && abs(position.y) < 3.3f) {
+		active = false;
+	}
+}
+
+bool Ball::IsActive() {
+	return active;
+}
+
+void Ball::Serve(DirectX::XMFLOAT3 playerPosition)
+{
+	transform.SetPosition(playerPosition.x, playerPosition.y + 2, playerPosition.z);
+	active = true;
+	velocity = Vector3(0, 12.0f, 0);
+
+	// make player lose if they miss the serve
+	playerHit = false;
+	hasBounced = true;
 }

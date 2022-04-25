@@ -94,6 +94,7 @@ void Input::Initialize(HWND windowHandle)
 // ----------------------------------------------------------
 void Input::Update()
 {
+
 	// Copy the old keys so we have last frame's data
 	memcpy(prevKbState, kbState, sizeof(unsigned char) * 256);
 

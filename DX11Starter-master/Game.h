@@ -43,17 +43,20 @@ private:
 
 	std::shared_ptr<Mesh> cube;
 	std::shared_ptr<Mesh> sphere;
-	std::shared_ptr<Mesh> spiral;
+	std::shared_ptr<Mesh> racket;
 	std::shared_ptr<Camera> worldCam;
+
+	std::shared_ptr<Material> pureWhite;
+	std::shared_ptr<Material> lightGreen;
+	// delete these
 	std::shared_ptr<Material> blue;
 	std::shared_ptr<Material> red;
 	std::shared_ptr<Material> green;
+
 	DirectX::XMFLOAT3 ambientColor;
 	Light dirLight;
-	Light redLight;
-	Light greenLight;
-	Light bluePoint;
-	Light yellowPoint;
+	Light backLeftLight;
+	Light backRightLight;
 
 	// Should we use vsync to limit the frame rate?
 	bool vsync;
@@ -95,10 +98,6 @@ private:
 	//   ComPtr called “device”.  Make any adjustments necessary for
 	//   your own implementation.
 	// --------------------------------------------------------
-
-
-	// --- HEADER ---
-
 	// Helper for creating a cubemap from 6 individual textures
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> CreateCubemap(
 		const wchar_t* right,

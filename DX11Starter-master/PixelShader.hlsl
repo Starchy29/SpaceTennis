@@ -8,10 +8,8 @@ cbuffer ExternalData : register(b0) {
 	float uvScale;
 	float3 ambient;
 	Light directionalLight1;
-	Light redLight;
-	Light greenLight;
-	Light bluePoint;
-	Light yellowPoint;
+	Light directionalLight2;
+	Light directionalLight3;
 }
 
 Texture2D Albedo : register(t0);
@@ -41,11 +39,9 @@ float4 main(VertexToPixel input) : SV_TARGET
 	float metalness = MetalnessMap.Sample(DefaultSampler, input.uv).r;
 	float3 specularColor = lerp(F0_NON_METAL.rrr, surfaceColor.rgb, metalness);
 
-	float4 first = Directional(directionalLight1, view, input.normal, roughness, surfaceColor, specularColor, metalness);
-	float4 red = Directional(redLight, view, input.normal, roughness, surfaceColor, specularColor, metalness);
-	float4 green = Directional(greenLight, view, input.normal, roughness, surfaceColor, specularColor, metalness);
-	float4 blue = Point(bluePoint, view, input.normal, roughness, surfaceColor, input.worldPosition, specularColor, metalness);
-	float4 yellow = Point(yellowPoint, view, input.normal, roughness, surfaceColor, input.worldPosition, specularColor, metalness);
-	float4 totalColor = first + red + green + blue + yellow + float4(ambient, 1) * surfaceColor;
+	float4 mainDirectional = Directional(directionalLight1, view, input.normal, roughness, surfaceColor, specularColor, metalness);
+	float4 backLeftDir = Directional(directionalLight2, view, input.normal, roughness, surfaceColor, specularColor, metalness);
+	float4 backRightDir = Directional(directionalLight3, view, input.normal, roughness, surfaceColor, specularColor, metalness);
+	float4 totalColor = backLeftDir + backRightDir + mainDirectional + float4(ambient, 1) * surfaceColor;
 	return float4(pow(totalColor, 1.0f / 2.2f).rgb, 1);
 }

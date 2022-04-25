@@ -97,7 +97,11 @@ void Player::Update(float dt, Ball* ball)
 		float distSquared = dx * dx + dy * dy + dz * dz;
 		if(distSquared < 8) {
 			// hit ball
-			ball->Hit(Vector3(0, 10, 15), true);
+			if(position.y <= minY) {
+				ball->Hit(Vector3(0, 10, 15), true);
+			} else {
+				ball->Hit(Vector3(0, -10, 15), true);
+			}
 		}
 	}
 

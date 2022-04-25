@@ -82,5 +82,8 @@ private:
 	// The window's handle (id) from the OS, so
 	// we can get the cursor's position
 	HWND windowHandle {0};
+
+	// added gamepad input
+	//GamepadReading currentGamepad;
 };
 
