@@ -400,7 +400,7 @@ HRESULT DXCore::Run()
 		{
 			// Update timer and title bar (if necessary)
 			UpdateTimer();
-			if(titleBarStats)
+			if(false && titleBarStats)
 				UpdateTitleBarStats();
 
 			// Update the input manager

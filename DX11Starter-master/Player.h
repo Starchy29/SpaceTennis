@@ -8,6 +8,8 @@ class Player : public Entity
 public:
 	void Update(float dt, Ball* ball);
 	Player(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material);
+	Entity* racketHead;
+	Entity* racketHandle;
 
 private:
 	Vector3 velocity;

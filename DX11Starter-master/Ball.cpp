@@ -16,8 +16,10 @@ void Ball::Hit(Vector3 hit, bool fromPlayer)
 	velocity = hit;
 }
 
-void Ball::Update(float deltaTime)
+// returns which player got a point: >0 player, <0 enemy, 0 no one
+int Ball::Update(float deltaTime)
 {
+	int result = 0;
 	float minY = 0.5f; // floor height
 
 	// apply gravity
@@ -36,6 +38,7 @@ void Ball::Update(float deltaTime)
 		if(hasBounced) {
 			// point ends from double bounce
 			active = false;
+			result = (playerHit ? 1 : -1);
 		}
 		else {
 			hasBounced = true;
@@ -48,23 +51,23 @@ void Ball::Update(float deltaTime)
 				|| position.z > Game::COURT_HALF_HEIGHT + buffer// out front
 			) {
 				active = false;
+				result = (!playerHit ? 1 : -1);
 			}
-
+			
 			if(playerHit && position.z < 0 || !playerHit && position.z > 0) { // land in own court
 				active = false;
+				result = (!playerHit ? 1 : -1);
 			}
 		}
-	}
-
-	// temp: bounce off back wall
-	if(position.z > Game::AREA_HALF_HEIGHT || position.z < -Game::AREA_HALF_HEIGHT) {
-		velocity.z *= -1;
 	}
 
 	// check for net collision
 	if(abs(position.z) < 0.3f && abs(position.y) < 3.3f) {
 		active = false;
+		result = (!playerHit ? 1 : -1);
 	}
+
+	return result;
 }
 
 bool Ball::IsActive() {
@@ -73,7 +76,7 @@ bool Ball::IsActive() {
 
 void Ball::Serve(DirectX::XMFLOAT3 playerPosition)
 {
-	transform.SetPosition(playerPosition.x, playerPosition.y + 2, playerPosition.z);
+	transform.SetPosition(playerPosition.x + 1.5f, playerPosition.y + 2.5f, playerPosition.z);
 	active = true;
 	velocity = Vector3(0, 12.0f, 0);
 

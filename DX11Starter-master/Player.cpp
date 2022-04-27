@@ -17,8 +17,18 @@ void Player::Update(float dt, Ball* ball)
 	Vector3 moveDirection = Vector3();
 	if (input.KeyDown(VK_UP)) { moveDirection.z += 1; }
 	if (input.KeyDown(VK_DOWN)) { moveDirection.z -= 1; }
-	if (input.KeyDown(VK_LEFT)) { moveDirection.x -= 1; facingRight = false; }
-	if (input.KeyDown(VK_RIGHT)) { moveDirection.x += 1; facingRight = true;  }
+	if (input.KeyDown(VK_LEFT)) { 
+		moveDirection.x -= 1; 
+		if(!input.KeyDown('W') && !input.KeyRelease('W')) { // don't release on the frame the player swings either
+			facingRight = false;
+		}
+	}
+	if (input.KeyDown(VK_RIGHT)) { 
+		moveDirection.x += 1; 
+		if(!input.KeyDown('W') && !input.KeyRelease('W')) {
+			facingRight = true;
+		}
+	}
 
 	if(!moveDirection.Equals(Vector3())) {
 		moveDirection.SetLength(acceleration);
@@ -46,6 +56,10 @@ void Player::Update(float dt, Ball* ball)
 	
 	// cap speed
 	Vector3 horVel = Vector3(velocity.x, 0, velocity.z);
+	if(input.KeyDown('W')) {
+		// move slower when holding a swing
+		maxSpeed /= 3.0f;
+	}
 	if(horVel.Length() > maxSpeed) {
 		horVel.SetLength(maxSpeed);
 		velocity = Vector3(horVel.x, velocity.y, horVel.z);
@@ -81,7 +95,7 @@ void Player::Update(float dt, Ball* ball)
 	}
 
 	// swing at ball
-	if(input.KeyPress('W') && ball != nullptr) {
+	if(input.KeyRelease('W') && ball != nullptr) {
 		swingCooldown = 1.0f;
 
 		float reach = 2.0f;
@@ -97,10 +111,18 @@ void Player::Update(float dt, Ball* ball)
 		float distSquared = dx * dx + dy * dy + dz * dz;
 		if(distSquared < 8) {
 			// hit ball
+			float aimer = 0.0f;
+			if(input.KeyDown(VK_RIGHT)) {
+				aimer = 4.0f;
+			}
+			if(input.KeyDown(VK_LEFT)) {
+				aimer = -4.0f;
+			}
+
 			if(position.y <= minY) {
-				ball->Hit(Vector3(0, 10, 15), true);
+				ball->Hit(Vector3(aimer, 8, 12), true); // ground stroke
 			} else {
-				ball->Hit(Vector3(0, -10, 15), true);
+				ball->Hit(Vector3(aimer, -10, 15), true); // spike midair
 			}
 		}
 	}
@@ -108,6 +130,10 @@ void Player::Update(float dt, Ball* ball)
 	if(swingCooldown > 0) {
 		swingCooldown -= dt;
 	}
+
+	// make racket follow player
+	racketHandle->GetTransform()->SetPosition((facingRight ? 1 : -1) * 0.9f + position.x, position.y, position.z);
+	racketHead->GetTransform()->SetPosition((facingRight ? 1 : -1) * 1.5f + position.x, position.y, position.z);
 }
 
 Player::Player(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material) : Entity(mesh, material) {

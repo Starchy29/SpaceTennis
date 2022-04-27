@@ -8,7 +8,7 @@ class Ball : public Entity
 public:
 	Ball(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material);
 	void Hit(Vector3 hit, bool fromPlayer);
-	void Update(float deltaTime);
+	int Update(float deltaTime);
 	bool IsActive();
 	void Serve(DirectX::XMFLOAT3 playerPosition);
 

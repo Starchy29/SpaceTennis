@@ -119,7 +119,7 @@ float4 Directional(Light light, float3 view, float3 normal, float roughness, flo
 }
 
 float4 Point(Light light, float3 view, float3 normal, float roughness, float4 colorTint, float3 worldPosition, float3 specColor, float metalness) {
-	light.direction = normalize(light.position - worldPosition);
+	light.direction = normalize(worldPosition - light.position);
 	return Directional(light, view, normal, roughness, colorTint, specColor, metalness) * Attenuate(light, worldPosition);
 }
 

@@ -29,6 +29,7 @@ public:
 	void OnResize();
 	void Update(float deltaTime, float totalTime);
 	void Draw(float deltaTime, float totalTime);
+	void ScorePoint(bool playerPoint);
 
 	static const int COURT_HALF_WIDTH = 10;
 	static const int COURT_HALF_HEIGHT = 14;
@@ -36,27 +37,28 @@ public:
 	static const int AREA_HALF_HEIGHT = 18;
 
 private:
+	void UpdateEnemy(float dt);
+
+	int playerScore;
+	int enemyScore;
+
 	std::vector<Entity*> court;
 	Player* player;
 	Ball* ball;
-	Entity* net;
+	Entity* enemy;
 
 	std::shared_ptr<Mesh> cube;
+	std::shared_ptr<Mesh> cylinder;
 	std::shared_ptr<Mesh> sphere;
-	std::shared_ptr<Mesh> racket;
 	std::shared_ptr<Camera> worldCam;
 
 	std::shared_ptr<Material> pureWhite;
 	std::shared_ptr<Material> lightGreen;
-	// delete these
-	std::shared_ptr<Material> blue;
-	std::shared_ptr<Material> red;
-	std::shared_ptr<Material> green;
+	std::shared_ptr<Material> asteroid;
 
 	DirectX::XMFLOAT3 ambientColor;
 	Light dirLight;
-	Light backLeftLight;
-	Light backRightLight;
+	Light ballLight;
 
 	// Should we use vsync to limit the frame rate?
 	bool vsync;
