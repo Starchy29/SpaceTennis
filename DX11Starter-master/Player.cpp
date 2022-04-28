@@ -119,10 +119,12 @@ void Player::Update(float dt, Ball* ball)
 				aimer = -4.0f;
 			}
 
+			aimer += dz * 3 * (facingRight ? -1 : 1);
+
 			if(position.y <= minY) {
 				ball->Hit(Vector3(aimer, 8, 12), true); // ground stroke
 			} else {
-				ball->Hit(Vector3(aimer, -10, 15), true); // spike midair
+				ball->Hit(Vector3(aimer, -1.5f * position.y, -3 * position.z + (position.z > -3.0f ? 2.0f : 0.0f)), true); // spike midair
 			}
 		}
 	}

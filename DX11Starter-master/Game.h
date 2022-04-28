@@ -47,6 +47,12 @@ private:
 	Ball* ball;
 	Entity* enemy;
 
+	// enemy rackets
+	Entity* leftHead;
+	Entity* rightHead;
+	Entity* leftHandle;
+	Entity* rightHandle;
+
 	std::shared_ptr<Mesh> cube;
 	std::shared_ptr<Mesh> cylinder;
 	std::shared_ptr<Mesh> sphere;
@@ -55,6 +61,8 @@ private:
 	std::shared_ptr<Material> pureWhite;
 	std::shared_ptr<Material> lightGreen;
 	std::shared_ptr<Material> asteroid;
+	std::shared_ptr<Material> wood;
+	std::shared_ptr<Material> paint;
 
 	DirectX::XMFLOAT3 ambientColor;
 	Light dirLight;

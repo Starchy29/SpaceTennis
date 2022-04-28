@@ -126,6 +126,16 @@ void Game::CreateBasicGeometry()
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> cobblestoneRoughness;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> cobblestoneMetal;
 
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> wood;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> woodNormal;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> woodRoughness;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> woodMetal;
+
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> paint;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> paintNormal;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> paintRoughness;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> paintMetal;
+
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> asteroid;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> asteroidNormal;
 
@@ -154,6 +164,24 @@ void Game::CreateBasicGeometry()
 		GetFullPathTo_Wide(L"../../Assets/Textures/PBR/cobblestone_metal.png").c_str(), nullptr, cobblestoneMetal.GetAddressOf());
 
 	CreateWICTextureFromFile(device.Get(), context.Get(),
+		GetFullPathTo_Wide(L"../../Assets/Textures/PBR/wood_albedo.png").c_str(), nullptr, wood.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), context.Get(),
+		GetFullPathTo_Wide(L"../../Assets/Textures/PBR/wood_normals.png").c_str(), nullptr, woodNormal.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), context.Get(),
+		GetFullPathTo_Wide(L"../../Assets/Textures/PBR/wood_roughness.png").c_str(), nullptr, woodRoughness.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), context.Get(),
+		GetFullPathTo_Wide(L"../../Assets/Textures/PBR/wood_metal.png").c_str(), nullptr, woodMetal.GetAddressOf());
+
+	CreateWICTextureFromFile(device.Get(), context.Get(),
+		GetFullPathTo_Wide(L"../../Assets/Textures/PBR/paint_albedo.png").c_str(), nullptr, paint.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), context.Get(),
+		GetFullPathTo_Wide(L"../../Assets/Textures/PBR/paint_normals.png").c_str(), nullptr, paintNormal.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), context.Get(),
+		GetFullPathTo_Wide(L"../../Assets/Textures/PBR/paint_roughness.png").c_str(), nullptr, paintRoughness.GetAddressOf());
+	CreateWICTextureFromFile(device.Get(), context.Get(),
+		GetFullPathTo_Wide(L"../../Assets/Textures/PBR/paint_metal.png").c_str(), nullptr, paintMetal.GetAddressOf());
+
+	CreateWICTextureFromFile(device.Get(), context.Get(),
 		GetFullPathTo_Wide(L"../../Assets/Textures/PBR/asteroid.png").c_str(), nullptr, asteroid.GetAddressOf());
 	CreateWICTextureFromFile(device.Get(), context.Get(),
 		GetFullPathTo_Wide(L"../../Assets/Textures/PBR/asteroid_normals.png").c_str(), nullptr, asteroidNormal.GetAddressOf());
@@ -165,14 +193,14 @@ void Game::CreateBasicGeometry()
 	CreateWICTextureFromFile(device.Get(), context.Get(),
 		GetFullPathTo_Wide(L"../../Assets/Textures/blackTexture.png").c_str(), nullptr, blackTexture.GetAddressOf());
 
-	/*skyBox = CreateCubemap(
+	skyBox = CreateCubemap(
 		GetFullPathTo_Wide(L"../../Assets/Textures/Skies/Left_Tex.png").c_str(),
 		GetFullPathTo_Wide(L"../../Assets/Textures/Skies/Right_Tex.png").c_str(),
 		GetFullPathTo_Wide(L"../../Assets/Textures/Skies/Up_Tex.png").c_str(),
 		GetFullPathTo_Wide(L"../../Assets/Textures/Skies/Down_Tex.png").c_str(),
 		GetFullPathTo_Wide(L"../../Assets/Textures/Skies/Front_Tex.png").c_str(),
 		GetFullPathTo_Wide(L"../../Assets/Textures/Skies/Back_Tex.png").c_str()
-	);*/
+	);
 
 	// create sampler
 	D3D11_SAMPLER_DESC samplerDescription = {};
@@ -188,10 +216,14 @@ void Game::CreateBasicGeometry()
 	this->pureWhite = std::make_shared<Material>(white, vertexShader, pixelShader, 0.5f);
 	this->lightGreen = std::make_shared<Material>(XMFLOAT4(0.55f, 1.0f, 0.0f, 1.0f), vertexShader, pixelShader, 0.5f);
 	this->asteroid = std::make_shared<Material>(white, vertexShader, pixelShader, 0.5f);
+	this->wood = std::make_shared<Material>(white, vertexShader, pixelShader, 0.5f);
+	this->paint = std::make_shared<Material>(white, vertexShader, pixelShader, 0.5f);
 
 	this->pureWhite.get()->AddSampler("DefaultSampler", samplerState.Get());
 	this->lightGreen.get()->AddSampler("DefaultSampler", samplerState.Get());
 	this->asteroid.get()->AddSampler("DefaultSampler", samplerState.Get());
+	this->wood.get()->AddSampler("DefaultSampler", samplerState.Get());
+	this->paint.get()->AddSampler("DefaultSampler", samplerState.Get());
 
 	this->pureWhite.get()->AddTextureSRV("Albedo", whiteTexture.Get());
 	this->pureWhite.get()->AddTextureSRV("NormalMap", bronzeNormal.Get());
@@ -207,6 +239,16 @@ void Game::CreateBasicGeometry()
 	this->asteroid.get()->AddTextureSRV("NormalMap", asteroidNormal.Get());
 	this->asteroid.get()->AddTextureSRV("RoughnessMap", whiteTexture.Get());
 	this->asteroid.get()->AddTextureSRV("MetalMap", blackTexture.Get());
+
+	this->wood.get()->AddTextureSRV("Albedo", wood.Get());
+	this->wood.get()->AddTextureSRV("NormalMap", woodNormal.Get());
+	this->wood.get()->AddTextureSRV("RoughnessMap", woodRoughness.Get());
+	this->wood.get()->AddTextureSRV("MetalMap", woodMetal.Get());
+
+	this->paint.get()->AddTextureSRV("Albedo", paint.Get());
+	this->paint.get()->AddTextureSRV("NormalMap", paintNormal.Get());
+	this->paint.get()->AddTextureSRV("RoughnessMap", paintRoughness.Get());
+	this->paint.get()->AddTextureSRV("MetalMap", paintMetal.Get());
 
 	this->asteroid->SetUVScale(4.0f);
 
@@ -282,25 +324,58 @@ void Game::CreateBasicGeometry()
 	net->GetTransform()->SetPosition(0, 1.5f, 0);
 	court.push_back(net);
 
-	player = new Player(cube, this->pureWhite);
+	player = new Player(cube, this->paint);
 	player->GetTransform()->Scale(cubeScaler, 2 * cubeScaler, cubeScaler);
 
-	player->racketHandle = new Entity(cube, this->pureWhite);
+	player->racketHandle = new Entity(cube, this->wood);
 	player->racketHandle->GetTransform()->Scale(cubeScaler, cubeScaler, cubeScaler);
 	player->racketHandle->GetTransform()->Scale(1.0f, 0.2f, 0.2f);
 
-	player->racketHead = new Entity(cylinder, this->pureWhite);
+	leftHandle = new Entity(cube, this->wood);
+	leftHandle->GetTransform()->Scale(cubeScaler, cubeScaler, cubeScaler);
+	leftHandle->GetTransform()->Scale(1.0f, 0.2f, 0.2f);
+	court.push_back(leftHandle); // I guess this counts as the court too now? idk man
+
+	rightHandle = new Entity(cube, this->wood);
+	rightHandle->GetTransform()->Scale(cubeScaler, cubeScaler, cubeScaler);
+	rightHandle->GetTransform()->Scale(1.0f, 0.2f, 0.2f);
+	court.push_back(rightHandle);
+
+	player->racketHead = new Entity(cylinder, this->wood);
 	player->racketHead->GetTransform()->Rotate(DirectX::XM_PIDIV2, 0.0f, 0.0f);
 	player->racketHead->GetTransform()->Scale(0.8f, 0.1f, 0.5f);
+
+	leftHead = new Entity(cylinder, this->wood);
+	leftHead->GetTransform()->Rotate(DirectX::XM_PIDIV2, 0.0f, 0.0f);
+	leftHead->GetTransform()->Scale(0.8f, 0.1f, 0.5f);
+	court.push_back(leftHead);
+
+	rightHead = new Entity(cylinder, this->wood);
+	rightHead->GetTransform()->Rotate(DirectX::XM_PIDIV2, 0.0f, 0.0f);
+	rightHead->GetTransform()->Scale(0.8f, 0.1f, 0.5f);
+	court.push_back(rightHead);
 
 	ball = new Ball(sphere, this->lightGreen);
 	ball->GetTransform()->Scale(0.8f, 0.8f, 0.8f);
 
-	enemy = new Entity(cube, this->pureWhite);
+	enemy = new Entity(cube, this->paint);
 	enemy->GetTransform()->SetPosition(0, 1.5, COURT_HALF_HEIGHT);
 	enemy->GetTransform()->Scale(cubeScaler, 2 * cubeScaler, cubeScaler);
 
 	sky = new Sky(cube, samplerState, device, skyVertexShader, skyPixelShader, skyBox);
+
+	// throw some rocks in there just cause
+	for(int i = 0; i < 20; i++) {
+		Entity* left = new Entity(sphere, this->asteroid);
+		left->GetTransform()->SetPosition(rand() % 1000 / 1000.0f * -20 - COURT_HALF_WIDTH - 5, 0, rand() % 1000 / 1000.0f * 2 * AREA_HALF_HEIGHT - AREA_HALF_HEIGHT);
+		left->GetTransform()->Scale(rand() % 1000 / 1000.0f * 3, rand() % 1000 / 1000.0f * 3, rand() % 1000 / 1000.0f * 3);
+		court.push_back(left);
+
+		Entity* right = new Entity(sphere, this->asteroid);
+		right->GetTransform()->SetPosition(rand() % 1000 / 1000.0f * 20 + COURT_HALF_WIDTH + 5, 0, rand() % 1000 / 1000.0f * 2 * AREA_HALF_HEIGHT - AREA_HALF_HEIGHT);
+		right->GetTransform()->Scale(rand() % 1000 / 1000.0f * 3, rand() % 1000 / 1000.0f * 3, rand() % 1000 / 1000.0f * 3);
+		court.push_back(right);
+	}
 }
 
 
@@ -445,7 +520,7 @@ void Game::UpdateEnemy(float dt) {
 	// move towards ball
 	XMFLOAT3 ballPos = ball->GetTransform()->GetPosition();
 	XMFLOAT3 position = enemy->GetTransform()->GetPosition();
-	float enemSpeed = 5.0f;
+	float enemSpeed = 8.0f;
 	if(position.x > ballPos.x + 1.0f) {
 		enemy->GetTransform()->MoveAbsolute(-enemSpeed * dt, 0, 0);
 	}
@@ -460,7 +535,11 @@ void Game::UpdateEnemy(float dt) {
 		enemy->GetTransform()->MoveAbsolute(0, -2 * enemSpeed * dt, 0);
 	}
 
-	// lock in court
+	// move rackets too
+	rightHandle->GetTransform()->SetPosition(0.9f + position.x, position.y, position.z);
+	leftHandle->GetTransform()->SetPosition(-0.9f + position.x, position.y, position.z);
+	rightHead->GetTransform()->SetPosition(1.5f + position.x, position.y, position.z);
+	leftHead->GetTransform()->SetPosition(-1.5f + position.x, position.y, position.z);
 
 	// hit ball when close
 	if(ballPos.z > COURT_HALF_HEIGHT - 2.0f && ballPos.z < COURT_HALF_HEIGHT + 2.0f
